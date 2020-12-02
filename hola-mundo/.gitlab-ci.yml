@@ -1,0 +1,25 @@
+docker-build:
+  # Official docker image.
+  image: docker:latest
+  stage: build
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD"
+  script:
+    - docker build --pull -t "$CI_REGISTRY_IMAGE":"$CI_COMMIT_SHA" .
+    - docker push "$CI_REGISTRY_IMAGE"
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_TLS_CERTDIR: ""
+  only:
+    - master
+
+deploy-master:
+  stage: deploy
+  image: bitnami/kubectl
+  script:
+    - kubectl get deployment hola-mundo || kubectl create deployment hola-mundo --image="$CI_REGISTRY_IMAGE":"$CI_COMMIT_SHA"
+    - kubectl set image deployment/hola-mundo hola-mundo="$CI_REGISTRY_IMAGE":"$CI_COMMIT_SHA"
+  only:
+    - master
