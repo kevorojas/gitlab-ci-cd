@@ -83,7 +83,7 @@ Para agregar nuestro cluster necesitamos tres cosas:
 Para conseguir nuestro **API URL** debemos ejecutar este comando:
 
 ```
-minikube kubectl cluster-info | grep 'Kubernetes master' | awk '/http/ {print $NF}'
+kubectl cluster-info | grep 'Kubernetes control plane' | awk '/http/ {print $NF}'
 ```
 
 Para conseguir el **CA certificate** ejecutamos lo siguiente:
@@ -91,13 +91,13 @@ Para conseguir el **CA certificate** ejecutamos lo siguiente:
 Primero necesitamos saber el nombre del secret que contiene el CA para eso ejecutamos el siguiente comando:
 
 ```
-minikube kubectl get secrets
+kubectl get secrets
 ```
 
 Luego ejecutamos este comando reemplanzado el <secret name> con el secret name que te aparecio:
 
 ```
-minikube kubectl -- get secret <secret name> -o jsonpath="{['data']['ca\.crt']}" | base64 --decode
+kubectl get secret <secret name> -o jsonpath="{['data']['ca\.crt']}" | base64 --decode
 ```
 
 Copiamos todo el certificado y lo pegamos a Gitlab.
@@ -132,13 +132,13 @@ subjects:
 Para crear el servicio ejecutamos el siguiente comando:
 
 ```
-minikube kubectl -- apply -f 00-gitlab-admin-service-account.yaml
+kubectl apply -f 00-gitlab-admin-service-account.yaml
 ```
 
 Ahora necesitamos obtener el token para gitlab, para ello ejecutamos lo siguiente:
 
 ```
-minikube kubectl -- -n kube-system describe secret $(minikube kubectl -- -n kube-system get secret | grep gitlab | awk '{print $1}')
+kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep gitlab | awk '{print $1}')
 ```
 
 Copiamos el **token** y lo pegamos en gitlab
@@ -148,7 +148,7 @@ Una vez hayamos hecho todo esto ya nuestro cluster en teoria ya estaria agregado
 Para eso ejecutamos:
 
 ```
-minikube kubectl get ns
+kubectl get ns
 ```
 
 Para hacer que nuestro runner pueda conectarse correctamente a gitlab debemos modificar la siguiente variable de entorno ubicada en la seccion de container:
@@ -174,7 +174,7 @@ rules:
 y lo ejecutamos con el siguiente comando
 
 ```
-minikube kubectl -- apply -f 01-clusterrole.yaml
+kubectl apply -f 01-clusterrole.yaml
 ```
 
 El otro sera llamado **02-clusterrolebinding.yaml**
@@ -198,7 +198,7 @@ roleRef:
 Lo aplicamos con el siguiente comando:
 
 ```
-minikube kubectl -- apply -f 02-clusterrolebinding.yaml
+kubectl apply -f 02-clusterrolebinding.yaml
 ```
 
 Una vez hemos modificado eso ya podriamos subir nuestro repositorio
@@ -232,7 +232,7 @@ spec:
 Para aplicarlo ejecutamos el siguiente comando
 
 ```
-minikube kubectl -- apply -f 03-svcnodeport.yaml
+kubectl apply -f 03-svcnodeport.yaml
 ```
 
 ## LINK DE VIDEO EN YOUTUBE
